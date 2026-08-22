@@ -4,10 +4,715 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>🥊 Уличные бои</title>
-  <link rel="stylesheet" href="style.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background: #0a0a0a;
+      color: white;
+      font-family: 'Arial', sans-serif;
+      height: 100vh;
+      overflow: hidden;
+    }
+    #app {
+      width: 100%;
+      height: 100%;
+    }
+    .menu {
+      padding: 30px 20px;
+      max-width: 900px;
+      margin: 0 auto;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .menu h1 {
+      text-align: center;
+      font-size: 48px;
+      margin-bottom: 10px;
+      color: #ffd700;
+      text-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+    }
+    .menu p {
+      text-align: center;
+      color: #aaa;
+      font-size: 18px;
+      margin-bottom: 30px;
+    }
+    .fighter-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+    }
+    .fighter-grid button {
+      background: #1a1a2e;
+      border: 2px solid #333;
+      border-radius: 12px;
+      padding: 20px;
+      color: white;
+      cursor: pointer;
+      transition: 0.2s;
+      text-align: left;
+    }
+    .fighter-grid button:hover {
+      transform: scale(1.03);
+      border-color: #ffd700;
+      background: #222244;
+    }
+    .fighter-grid h3 {
+      font-size: 20px;
+      margin-bottom: 5px;
+    }
+    .fighter-grid p {
+      font-size: 14px;
+      color: #aaa;
+      margin: 3px 0;
+      text-align: left;
+    }
+    .fighter-grid small {
+      color: #ffd700;
+      font-size: 12px;
+    }
+    .fight-screen {
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at center, #1a1a2e, #0a0a0a);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    .hud {
+      padding: 15px 20px;
+      background: rgba(0, 0, 0, 0.8);
+      border-bottom: 2px solid #333;
+    }
+    .hp-row {
+      display: grid;
+      grid-template-columns: 1fr 100px 1fr;
+      gap: 15px;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+    .hp-label {
+      font-size: 14px;
+      font-weight: bold;
+    }
+    .hp-label.enemy {
+      text-align: right;
+    }
+    .hp-bar {
+      height: 24px;
+      background: #222;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+    }
+    .hp-fill {
+      height: 100%;
+      transition: width 0.15s ease;
+      border-radius: 12px;
+    }
+    .hp-fill.player {
+      background: linear-gradient(90deg, #00ff88, #00cc66);
+    }
+    .hp-fill.enemy {
+      background: linear-gradient(90deg, #ff4444, #cc0000);
+    }
+    .hp-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 12px;
+      font-weight: bold;
+    }
+    .hp-row .round {
+      text-align: center;
+      font-size: 16px;
+      font-weight: bold;
+      color: #ffd700;
+    }
+    .energy-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-top: 3px;
+    }
+    .energy-bar {
+      height: 6px;
+      background: #222;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .energy-fill {
+      height: 100%;
+      transition: width 0.1s;
+      background: linear-gradient(90deg, #3fa9ff, #0066cc);
+    }
+    .arena {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .fighters-display {
+      display: flex;
+      justify-content: space-around;
+      width: 100%;
+      padding: 0 40px;
+    }
+    .fighter-card {
+      text-align: center;
+      font-size: 18px;
+    }
+    .fighter-card .name {
+      font-size: 20px;
+      font-weight: bold;
+    }
+    .fighter-card .weapon {
+      font-size: 14px;
+      color: #aaa;
+    }
+    .fighter-card .hp-text {
+      font-size: 14px;
+      color: #ff6b6b;
+      margin-top: 5px;
+    }
+    .fight-message {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 36px;
+      font-weight: 900;
+      text-shadow: 0 0 40px rgba(255, 215, 0, 0.6);
+      text-align: center;
+      pointer-events: none;
+      animation: fadeMessage 1.5s forwards;
+    }
+    @keyframes fadeMessage {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+      20% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+      80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -60%) scale(1); }
+    }
+    .controls-hint {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.85);
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: 13px;
+      text-align: center;
+      border: 1px solid #333;
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .controls-hint span {
+      display: inline-block;
+      background: #222;
+      padding: 4px 10px;
+      border-radius: 5px;
+      color: #ffd700;
+      font-weight: bold;
+      font-size: 13px;
+    }
+    .key {
+      color: #ffd700;
+      font-weight: bold;
+    }
+    .menu-btn {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      z-index: 10;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid #555;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .menu-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    .action-buttons {
+      position: absolute;
+      bottom: 80px;
+      right: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .action-btn {
+      background: rgba(255, 215, 0, 0.15);
+      border: 1px solid #ffd700;
+      color: white;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .action-btn:hover {
+      background: rgba(255, 215, 0, 0.3);
+    }
+  </style>
 </head>
 <body>
   <div id="app"></div>
-  <script type="module" src="app.js"></script>
+  <script>
+    // ===== ДАННЫЕ О БОЙЦАХ =====
+    const FIGHTERS = [
+      {
+        id: "dominic",
+        name: "Доминик Торетто",
+        hp: 1200,
+        speed: 2,
+        power: 8,
+        weapon: "Кулаки",
+        moves: {
+          q: { name: "Кросс", damage: 25 },
+          w: { name: "Хук", damage: 35 },
+          e: { name: "Апперкот", damage: 45 },
+          r: { name: "Удар ногой", damage: 30 }
+        },
+        combos: {
+          "qw": { name: "Кросс + Хук", damage: 60 },
+          "we": { name: "Хук + Апперкот", damage: 70 },
+          "qwe": { name: "Кросс + Хук + Апперкот", damage: 95 }
+        },
+        fatality: "Подкидывает ногой → удар в грудь → добив ногой"
+      },
+      {
+        id: "brian",
+        name: "Брайан О'Коннер",
+        hp: 1000,
+        speed: 4,
+        power: 6,
+        weapon: "Пистолет",
+        moves: {
+          q: { name: "Джеб", damage: 20 },
+          w: { name: "Тычок", damage: 25 },
+          e: { name: "Выстрел", damage: 40 },
+          r: { name: "Удар с разворота", damage: 35 }
+        },
+        combos: {
+          "qe": { name: "Джеб + Выстрел", damage: 60 },
+          "we": { name: "Тычок + Выстрел", damage: 65 }
+        },
+        fatality: "Выстрел в колено → удар в челюсть → контрольный выстрел"
+      },
+      {
+        id: "hobbs",
+        name: "Люк Хоббс",
+        hp: 1400,
+        speed: 1.5,
+        power: 10,
+        weapon: "Дробовик",
+        moves: {
+          q: { name: "Таран", damage: 30 },
+          w: { name: "Захват", damage: 20 },
+          e: { name: "Дробь", damage: 50 },
+          r: { name: "Слэм", damage: 40 }
+        },
+        combos: {
+          "qw": { name: "Таран + Захват", damage: 55 },
+          "wer": { name: "Захват + Дробь + Слэм", damage: 90 }
+        },
+        fatality: "Хватает за горло → бьёт головой об пол → добивает ногой"
+      },
+      {
+        id: "shaw",
+        name: "Деккард Шоу",
+        hp: 1100,
+        speed: 3,
+        power: 7,
+        weapon: "Нож",
+        moves: {
+          q: { name: "Тычок", damage: 25 },
+          w: { name: "Порез", damage: 20 },
+          e: { name: "Бросок", damage: 35 },
+          r: { name: "Удар рукоятью", damage: 30 }
+        },
+        combos: {
+          "qw": { name: "Тычок + Порез", damage: 50 },
+          "eq": { name: "Бросок + Тычок", damage: 60 }
+        },
+        fatality: "Бросает нож в ногу → перехват → перерезает горло"
+      },
+      {
+        id: "ramsey",
+        name: "Рамзи",
+        hp: 950,
+        speed: 3.5,
+        power: 5,
+        weapon: "Электрошокер",
+        moves: {
+          q: { name: "Разряд", damage: 20 },
+          w: { name: "Тычок", damage: 15 },
+          e: { name: "Заряженный удар", damage: 40 },
+          r: { name: "Подсечка", damage: 25 }
+        },
+        combos: {
+          "qe": { name: "Разряд + Заряженный", damage: 60 },
+          "wer": { name: "Тычок + Заряд + Подсечка", damage: 85 }
+        },
+        fatality: "Парализует → бьёт током в грудь → ногой в голову"
+      },
+      {
+        id: "letti",
+        name: "Летти",
+        hp: 1050,
+        speed: 3,
+        power: 7,
+        weapon: "Цепи",
+        moves: {
+          q: { name: "Удар цепью", damage: 25 },
+          w: { name: "Захват", damage: 20 },
+          e: { name: "Круговой удар", damage: 35 },
+          r: { name: "Бросок", damage: 30 }
+        },
+        combos: {
+          "qwe": { name: "Цепь + Захват + Круг", damage: 80 },
+          "er": { name: "Круг + Бросок", damage: 65 }
+        },
+        fatality: "Цепью по лицу → бросок → добивание ногой"
+      }
+    ];
+
+    // ===== ГЛАВНАЯ ФУНКЦИЯ =====
+    const app = document.getElementById('app');
+
+    function showMenu() {
+      app.innerHTML = `
+        <div class="menu">
+          <h1>🥊 УЛИЧНЫЙ БОЙ</h1>
+          <p>Выбери бойца для битвы:</p>
+          <div class="fighter-grid">
+            ${FIGHTERS.map(f => `
+              <button onclick="window.selectFighter('${f.id}')">
+                <h3>${f.name}</h3>
+                <p>❤️ ${f.hp} ⚡ ${f.speed}</p>
+                <small>⚔️ ${f.weapon}</small>
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // ===== ЛОГИКА БОЯ =====
+    let fightState = null;
+
+    function startFight(playerFighter, enemyFighter) {
+      const player = {
+        ...playerFighter,
+        currentHp: playerFighter.hp,
+        maxHp: playerFighter.hp,
+        combo: [],
+        energy: 100,
+        maxEnergy: 100
+      };
+      
+      const enemy = {
+        ...enemyFighter,
+        currentHp: enemyFighter.hp,
+        maxHp: enemyFighter.hp,
+        combo: [],
+        energy: 100,
+        maxEnergy: 100
+      };
+
+      fightState = {
+        player,
+        enemy,
+        isFighting: true,
+        round: 1
+      };
+
+      renderFight();
+      setupControls();
+
+      setTimeout(() => {
+        if (fightState.isFighting) aiTurn();
+      }, 1000);
+    }
+
+    function renderFight() {
+      const state = fightState;
+      const p = state.player;
+      const e = state.enemy;
+
+      app.innerHTML = `
+        <div class="fight-screen">
+          <div class="hud">
+            <div class="hp-row">
+              <div class="hp-label">${p.name}</div>
+              <div class="hp-bar">
+                <div class="hp-fill player" style="width: ${(p.currentHp / p.maxHp) * 100}%"></div>
+                <div class="hp-text">${Math.round(p.currentHp)} / ${p.maxHp}</div>
+              </div>
+              <div class="round">⚔️ РАУНД ${state.round}</div>
+              <div class="hp-bar">
+                <div class="hp-fill enemy" style="width: ${(e.currentHp / e.maxHp) * 100}%"></div>
+                <div class="hp-text">${Math.round(e.currentHp)} / ${e.maxHp}</div>
+              </div>
+              <div class="hp-label enemy">${e.name}</div>
+            </div>
+            <div class="energy-row">
+              <div class="energy-bar"><div class="energy-fill" style="width: ${(p.energy / p.maxEnergy) * 100}%"></div></div>
+              <div class="energy-bar"><div class="energy-fill" style="width: ${(e.energy / e.maxEnergy) * 100}%"></div></div>
+            </div>
+          </div>
+
+          <div class="arena" id="arena">
+            <div class="fighters-display">
+              <div class="fighter-card">
+                <div class="name">${p.name}</div>
+                <div class="weapon">⚔️ ${p.weapon}</div>
+                <div class="hp-text">❤️ ${Math.round(p.currentHp)}/${p.maxHp}</div>
+              </div>
+              <div style="font-size: 40px;">⚔️</div>
+              <div class="fighter-card">
+                <div class="name">${e.name}</div>
+                <div class="weapon">⚔️ ${e.weapon}</div>
+                <div class="hp-text">❤️ ${Math.round(e.currentHp)}/${e.maxHp}</div>
+              </div>
+            </div>
+            <div id="fightMessage" class="fight-message"></div>
+          </div>
+
+          <button class="menu-btn" id="menuBtn">🏠 Меню</button>
+
+          <div class="action-buttons">
+            <button class="action-btn" id="comboBtn">⚡ Комбо (X)</button>
+            <button class="action-btn" id="fatalityBtn">💀 Добивание (C)</button>
+          </div>
+
+          <div class="controls-hint">
+            <span><span class="key">Q</span> Джеб</span>
+            <span><span class="key">W</span> Хук</span>
+            <span><span class="key">E</span> Апперкот</span>
+            <span><span class="key">R</span> Нога</span>
+            <span><span class="key">X</span> Комбо</span>
+            <span><span class="key">C</span> Добивание</span>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('menuBtn').onclick = () => {
+        document.removeEventListener('keydown', handleKeyDown);
+        showMenu();
+      };
+
+      document.getElementById('comboBtn').onclick = () => useCombo();
+      document.getElementById('fatalityBtn').onclick = () => useFatality();
+    }
+
+    function setupControls() {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.addEventListener('keydown', handleKeyDown);
+    }
+
+    function handleKeyDown(e) {
+      const key = e.key.toLowerCase();
+      if (!fightState || !fightState.isFighting) return;
+      if ('qwer'.includes(key)) playerHit(key);
+      if (key === 'x') useCombo();
+      if (key === 'c') useFatality();
+    }
+
+    function playerHit(key) {
+      const state = fightState;
+      const player = state.player;
+      const enemy = state.enemy;
+      
+      player.combo.push(key);
+      clearTimeout(player.comboTimer);
+      
+      player.comboTimer = setTimeout(() => {
+        executePlayerCombo();
+      }, 300);
+      
+      const move = player.moves[key];
+      if (move) showMessage(`👊 ${move.name}!`);
+    }
+
+    function executePlayerCombo() {
+      const state = fightState;
+      const player = state.player;
+      const enemy = state.enemy;
+      
+      const comboKey = player.combo.join('');
+      let damage = 0;
+      let moveName = '';
+      
+      if (player.combos && player.combos[comboKey]) {
+        const combo = player.combos[comboKey];
+        damage = combo.damage;
+        moveName = combo.name;
+      } else if (player.combo.length === 1) {
+        const key = player.combo[0];
+        const move = player.moves[key];
+        if (move) {
+          damage = move.damage;
+          moveName = move.name;
+        }
+      }
+      
+      if (damage > 0) {
+        const actualDamage = damage * (Math.random() > 0.8 ? 1.5 : 1);
+        enemy.currentHp = Math.max(0, enemy.currentHp - actualDamage);
+        showMessage(`💥 ${moveName}! -${Math.round(actualDamage)} HP`);
+        updateHUD();
+        
+        if (enemy.currentHp <= 0) {
+          enemy.currentHp = 0;
+          state.isFighting = false;
+          showMessage(`🏆 ПОБЕДА! Нажми C для добивания!`);
+          updateHUD();
+        } else {
+          setTimeout(() => {
+            if (state.isFighting) aiTurn();
+          }, 500);
+        }
+      }
+      player.combo = [];
+    }
+
+    function aiTurn() {
+      const state = fightState;
+      if (!state || !state.isFighting) return;
+      
+      const enemy = state.enemy;
+      const player = state.player;
+      const keys = ['q', 'w', 'e', 'r'];
+      const key = keys[Math.floor(Math.random() * keys.length)];
+      const move = enemy.moves[key];
+      
+      if (move) {
+        const damage = move.damage * (Math.random() > 0.7 ? 1.5 : 1);
+        player.currentHp = Math.max(0, player.currentHp - damage);
+        showMessage(`💢 ${enemy.name} использует ${move.name}! -${Math.round(damage)} HP`);
+        updateHUD();
+        
+        if (player.currentHp <= 0) {
+          player.currentHp = 0;
+          state.isFighting = false;
+          showMessage(`💀 ВЫ НОКАУТИРОВАНЫ!`);
+          updateHUD();
+        } else {
+          setTimeout(() => {
+            if (state.isFighting) aiTurn();
+          }, 800);
+        }
+      }
+    }
+
+    function useCombo() {
+      const state = fightState;
+      if (!state || !state.isFighting) return;
+      
+      const player = state.player;
+      const enemy = state.enemy;
+      
+      if (player.energy < 30) {
+        showMessage('⚠️ Недостаточно энергии!');
+        return;
+      }
+      
+      player.energy -= 30;
+      const keys = Object.keys(player.combos);
+      const comboKey = keys[Math.floor(Math.random() * keys.length)];
+      const combo = player.combos[comboKey];
+      
+      if (combo) {
+        const damage = combo.damage * 1.2;
+        enemy.currentHp = Math.max(0, enemy.currentHp - damage);
+        showMessage(`🔥 КОМБО: ${combo.name}! -${Math.round(damage)} HP`);
+        updateHUD();
+        
+        if (enemy.currentHp <= 0) {
+          enemy.currentHp = 0;
+          state.isFighting = false;
+          showMessage(`🏆 ПОБЕДА! Нажми C для добивания!`);
+          updateHUD();
+        } else {
+          setTimeout(() => {
+            if (state.isFighting) aiTurn();
+          }, 500);
+        }
+      }
+    }
+
+    function useFatality() {
+      const state = fightState;
+      if (!state) return;
+      
+      const enemy = state.enemy;
+      
+      if (enemy.currentHp <= 0) {
+        showMessage(`💀 ${state.player.name}: "${enemy.fatality}"`);
+        state.isFighting = false;
+        setTimeout(() => {
+          document.removeEventListener('keydown', handleKeyDown);
+          showMenu();
+        }, 2000);
+      } else {
+        showMessage('⚠️ Враг ещё не нокаутирован!');
+      }
+    }
+
+    function showMessage(text) {
+      const el = document.getElementById('fightMessage');
+      if (el) {
+        el.style.animation = 'none';
+        el.offsetHeight;
+        el.textContent = text;
+        el.style.animation = 'fadeMessage 1.5s forwards';
+      }
+    }
+
+    function updateHUD() {
+      const state = fightState;
+      if (!state) return;
+      
+      const p = state.player;
+      const e = state.enemy;
+      
+      const hpFills = document.querySelectorAll('.hp-fill');
+      if (hpFills.length >= 2) {
+        hpFills[0].style.width = `${(p.currentHp / p.maxHp) * 100}%`;
+        hpFills[1].style.width = `${(e.currentHp / e.maxHp) * 100}%`;
+      }
+      
+      const hpTexts = document.querySelectorAll('.hp-text');
+      if (hpTexts.length >= 2) {
+        hpTexts[0].textContent = `${Math.round(p.currentHp)} / ${p.maxHp}`;
+        hpTexts[1].textContent = `${Math.round(e.currentHp)} / ${e.maxHp}`;
+      }
+    }
+
+    // ===== ВЫБОР БОЙЦА =====
+    window.selectFighter = (id) => {
+      const player = FIGHTERS.find(f => f.id === id);
+      const enemy = FIGHTERS[Math.floor(Math.random() * FIGHTERS.length)];
+      startFight(player, enemy);
+    };
+
+    // ===== ЗАПУСК =====
+    showMenu();
+  </script>
 </body>
 </html>
