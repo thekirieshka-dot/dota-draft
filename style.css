@@ -1,0 +1,108 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #0a0a0a;
+  color: white;
+  font-family: 'Arial', sans-serif;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.menu {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.fighter-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.fighter-grid button {
+  background: #1a1a2e;
+  border: 2px solid #333;
+  border-radius: 12px;
+  padding: 20px;
+  color: white;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.fighter-grid button:hover {
+  transform: scale(1.05);
+  border-color: #ffd700;
+}
+
+.fight-screen {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background: radial-gradient(circle, #1a1a2e, #0a0a0a);
+}
+
+.hud {
+  display: grid;
+  grid-template-columns: 1fr 100px 1fr;
+  gap: 10px;
+  padding: 10px;
+  background: rgba(0,0,0,0.8);
+}
+
+.hp-bar {
+  height: 20px;
+  background: #222;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.hp-fill {
+  height: 100%;
+  transition: width 0.1s;
+  background: linear-gradient(90deg, #00ff88, #00cc66);
+}
+
+.hp-fill.enemy {
+  background: linear-gradient(90deg, #ff4444, #cc0000);
+}
+
+.controls-hint {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.8);
+  padding: 15px 25px;
+  border-radius: 15px;
+  font-size: 14px;
+  text-align: center;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.key {
+  display: inline-block;
+  background: #333;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-weight: bold;
+  color: #ffd700;
+}
+
+.fight-message {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 48px;
+  font-weight: 900;
+  text-shadow: 0 0 30px rgba(255,215,0,0.5);
+  pointer-events: none;
+}
